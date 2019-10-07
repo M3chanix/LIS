@@ -74,7 +74,7 @@ class Department:
     def process_3_5(self):
         self.processed_3_5 = self.table5.dataframe.copy()
         for column in self.processed_3_5.columns[2:]:
-            self.processed_3_5[column] = self.processed_3_5[column] / self.processed_3_5[self.processed_3_5.columns[1]]\
+            self.processed_3_5[column] = self.processed_3_5[column] / self.processed_3_5[self.processed_3_5.columns[1]] \
                                          * 100
 
     def process_6_7(self):
@@ -84,15 +84,18 @@ class Department:
 class Processor(object):
     def __init__(self, path):
         # todo: сделать правильную инициализацию для всех датафреймов
-        department_list = {}
-        for i in range(1, 13):
-            department_list["department_" + str(i)] = path + "/" + str(i)
-        for department in department_list:
-            self.__dict__[department] = Department(department_list[department])
-
         self.table1 = Table(path + "/1.xlsx")
         self.table2 = Table(path + "/2.xlsx")
         self.table3 = Table3(path + "/3.xlsx")
+
+        self.department_dict = {}
+        for i in range(1, self.table3.dataframe.shape[0]):
+            self.department_dict[self.table3.dataframe[self.table3.dataframe.columns[0]].iloc[i]] = \
+                "department_" + str(i)
+
+        for department in self.department_dict:
+            self.__dict__[self.department_dict[department]] = Department(path + "/" + str(department))
+
         # self.table5 = Table3("C:/Users/M3chanix/Desktop/НИИ Онкологии/ЛИС/12-08-2019_13-15-34/табл 5.xlsx")
         # self.table6 = Table6("C:/Users/M3chanix/Desktop/НИИ Онкологии/ЛИС/12-08-2019_13-15-34/табл 6.xlsx")
         # self.table7 = Table7("C:/Users/M3chanix/Desktop/НИИ Онкологии/ЛИС/12-08-2019_13-15-34/табл 7.xlsx")
@@ -116,8 +119,13 @@ class Processor(object):
     def process_2_3(self):
         self.processed_2_3 = self.table3.dataframe.copy()
         for column in self.processed_2_3.columns[2:]:
-            self.processed_2_3[column] = self.processed_2_3[column] / self.processed_2_3[self.processed_2_3.columns[1]]\
+            self.processed_2_3[column] = self.processed_2_3[column] / self.processed_2_3[self.processed_2_3.columns[1]] \
                                          * 100
+
+    def process_2_4(self):
+        for i in range(1, self.table3.dataframe.shape[0]):
+            self.__dict__[self.department_dict[self.processed_2_3 \
+                [self.processed_2_3.columns[0]].iloc[i]]].__dict__["processed_2_4"] = self.processed_2_3.iloc[i]
 
     # def process_3_5(self):
     #     self.processed_3_5 = self.table5.dataframe.copy()
@@ -132,7 +140,8 @@ class Processor(object):
 proc = Processor("C:/py1/LIS")
 proc.process_1_2()
 proc.process_2_3()
-print(proc.processed_1_2)
+proc.process_2_4()
+# print(proc.processed_1_2)
 # proc.process_3_5()
 # proc.process_6_7()
 
