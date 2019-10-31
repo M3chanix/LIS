@@ -2,6 +2,7 @@ import pandas as pd
 import xlrd
 import os
 import shutil
+import numpy as np
 
 
 class Table:
@@ -96,20 +97,9 @@ class Processor(object):
         for department in self.department_dict:
             self.__dict__[self.department_dict[department]] = Department(path + "/" + str(department))
 
-        # self.table5 = Table3("C:/Users/M3chanix/Desktop/НИИ Онкологии/ЛИС/12-08-2019_13-15-34/табл 5.xlsx")
-        # self.table6 = Table6("C:/Users/M3chanix/Desktop/НИИ Онкологии/ЛИС/12-08-2019_13-15-34/табл 6.xlsx")
-        # self.table7 = Table7("C:/Users/M3chanix/Desktop/НИИ Онкологии/ЛИС/12-08-2019_13-15-34/табл 7.xlsx")
-
-        # self.file_list = file_list
-        # self.date = self.get_date()
-
-    #
-    # def process_files(self):def get_date(self):
-    #     #     with xlrd.open_workbook(self.file_list[0]) as wb:
-    #     #         sheet = wb.sheet_by_index(0)
-    #     #         return sheet.cell_value(0, 1)
-    # todo: чтобы обрабатывать все файлы в одном цикле, нужно их различать и присваивать именно в свою именованую
-    # todo: переменную каждый. легче всего это сделать через уникальные имена для каждого файла
+        self.process_1_2()
+        self.process_2_3()
+        self.process_2_4()
 
     def process_1_2(self):
         self.processed_1_2 = self.table1.dataframe.copy()
@@ -121,26 +111,13 @@ class Processor(object):
         for column in self.processed_2_3.columns[2:]:
             self.processed_2_3[column] = self.processed_2_3[column] / self.processed_2_3[self.processed_2_3.columns[1]] \
                                          * 100
+        self.processed_2_3 = self.processed_2_3
 
     def process_2_4(self):
         for i in range(1, self.table3.dataframe.shape[0]):
+            # first converting series to dataframe
+            series = self.processed_2_3.iloc[i]
+            dataframe = series.to_frame()
+            dataframe.insert(0, "index", series.index)
             self.__dict__[self.department_dict[self.processed_2_3 \
-                [self.processed_2_3.columns[0]].iloc[i]]].__dict__["processed_2_4"] = self.processed_2_3.iloc[i]
-
-    # def process_3_5(self):
-    #     self.processed_3_5 = self.table5.dataframe.copy()
-    #     for column in self.processed_3_5.columns[2:]:
-    #         self.processed_3_5[column] = self.processed_3_5[column] / self.processed_3_5[self.processed_3_5.columns[1]]\
-    #                                      * 100
-    #
-    # def process_6_7(self):
-    #     self.processed_6_7 = pd.merge(self.table6.dataframe, self.table7.dataframe, on="Микроорганизмы")
-
-
-proc = Processor("C:/py1/LIS")
-proc.process_1_2()
-proc.process_2_3()
-proc.process_2_4()
-print(proc.processed_1_2)
-# proc.process_3_5()
-# proc.process_6_7()
+                [self.processed_2_3.columns[0]].iloc[i]]].__dict__["processed_2_4"] = dataframe
